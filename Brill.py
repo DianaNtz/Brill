@@ -55,6 +55,17 @@ rhomin=0.0
 rho,Drho,D2rho=Cheb_grid_and_D(rhomin,rhomax,Nrho)
 z,Dz,D2z=Cheb_grid_and_D(zmin,zmax,Nz)
 
+q=np.zeros(Nrho*Nz)
+
+
+rhov=np.zeros(Nrho*Nz)
+
+for j in range(0,Nrho):
+          for i in range(0,Nz):
+
+                  q[i+j*Nz]=fq(rho[j],z[i])
+                  rhov[i+j*Nz]=rho[j]
+
 #create linear operator L
 dz=np.kron(np.identity((Nrho)),Dz)
 d2z=np.kron(np.identity((Nrho)),D2z)
@@ -95,13 +106,29 @@ boundz=np.matmul(b1rho,dz)+b2z
 
 L=np.matmul(c1rho,drho)+np.matmul(c2rho,d2rho)+np.matmul(c2z,d2z)+cf
 
-q=np.zeros(Nrho*Nz)
-
-
-rhov=np.zeros(Nrho*Nz)
-
+#setting boundaries
+b=np.zeros(Nrho*Nz)
 for j in range(0,Nrho):
-          for i in range(0,Nz):
+        for i in range(0,Nz):
+            if(i==0):
+               b[i+j*Nz]=z[0]
+            if(i==Nz-1):
+               b[i+j*Nz]=z[-1]
+            if(j==Nrho-1):
+               b[i+j*Nz]=rho[-1]
 
-                  q[i+j*Nz]=fq(rho[j],z[i])
-                  rhov[i+j*Nz]=rho[j]
+
+
+for k in range(0,Nrho*Nz):
+        if(k%Nz==0):
+           #z bei 0
+           L[k]=boundz[k]
+        if(k<Nz ):
+           L[k]=drho[k]
+           #rho bei 0
+        if(k%Nz==Nz-1):
+           L[k]=boundz[k]
+           #z bei Nz
+        if(k>=Nrho*Nz-Nz):
+           L[k]=boundrho[k]
+           #rho bei Nrho
