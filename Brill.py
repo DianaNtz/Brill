@@ -132,3 +132,27 @@ for k in range(0,Nrho*Nz):
         if(k>=Nrho*Nz-Nz):
            L[k]=boundrho[k]
            #rho bei Nrho
+#solve linear system
+solution=np.linalg.solve(L,b)
+print(np.linalg.matrix_rank(L,tol=0.000000000000001))
+print(Nrho*Nz)
+
+so=solution.reshape(Nrho,Nz)
+
+#plotting results
+zz,rhorho= np.meshgrid(z, rho)
+fig = plt.figure(figsize=(14,12))
+axx = plt.axes(projection='3d')
+axx.plot_surface(zz, rhorho, so,cmap=cm.inferno,antialiased=False)
+axx.view_init(azim=240,elev=25)
+axx.set_xlabel('z', labelpad=30,fontsize=34)
+axx.set_ylabel("ρ",labelpad=30,fontsize=34)
+axx.zaxis.set_rotate_label(False)
+axx.set_zlabel('$\psi$',labelpad=40,fontsize=34,rotation=0)
+axx.zaxis.set_tick_params(labelsize=21,pad=18)
+axx.yaxis.set_tick_params(labelsize=21)
+axx.xaxis.set_tick_params(labelsize=21)
+fig.subplots_adjust(left=0, right=1, bottom=0, top=1)
+filename ="psi12.png"
+plt.savefig(filename,dpi=50)
+plt.show()
