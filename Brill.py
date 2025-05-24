@@ -29,4 +29,39 @@ def Cheb_grid_and_D(xmin,xmax,Nx):
 
      Dx=Dx/cx
      return x,Dx,np.dot(Dx,Dx)
+#Holz data
+sigma_rho=1
+sigma_z=1
+Amp=10
+rho0=0.0
+z0=0.0
 
+def fq(rho,z):
+
+    return Amp*(rho)**2*np.exp(-(rho-rho0)**2/sigma_rho**2-(z-z0)**2/sigma_z**2)
+#Initial values
+Nz=41
+Nrho=51
+
+zmin=-3.5
+zmax=3.5
+
+rhomax=3.5
+rhomin=0.0
+
+
+
+
+rho,Drho,D2rho=Cheb_grid_and_D(rhomin,rhomax,Nrho)
+z,Dz,D2z=Cheb_grid_and_D(zmin,zmax,Nz)
+
+q=np.zeros(Nrho*Nz)
+
+
+rhov=np.zeros(Nrho*Nz)
+
+for j in range(0,Nrho):
+          for i in range(0,Nz):
+
+                  q[i+j*Nz]=fq(rho[j],z[i])
+                  rhov[i+j*Nz]=rho[j]
