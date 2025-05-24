@@ -55,6 +55,46 @@ rhomin=0.0
 rho,Drho,D2rho=Cheb_grid_and_D(rhomin,rhomax,Nrho)
 z,Dz,D2z=Cheb_grid_and_D(zmin,zmax,Nz)
 
+#create linear operator L
+dz=np.kron(np.identity((Nrho)),Dz)
+d2z=np.kron(np.identity((Nrho)),D2z)
+drho=np.kron(Drho,np.identity((Nz)))
+d2rho=np.kron(D2rho,np.identity((Nz)))
+
+d2rhoq=np.dot(d2rho,q)
+d2zq=np.dot(d2z,q)
+
+fneu=rhov**2*(d2rhoq+d2zq)/4
+
+c1rho=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+c2rho=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+c2z=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+cf=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+
+b1rho=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+b2rho=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+b2z=np.zeros([Nrho*Nz,Nrho*Nz], dtype='double')
+
+for j in range(0,Nrho):
+        for i in range(0,Nz):
+            cf[i+j*Nz][i+j*Nz]=fneu[i+j*Nz]
+
+
+            c1rho[i+j*Nz][i+j*Nz]=rhov[i+j*Nz]
+
+            c2rho[i+j*Nz][i+j*Nz]=rhov[i+j*Nz]**2
+            c2z[i+j*Nz][i+j*Nz]=rhov[i+j*Nz]**2
+
+
+            b1rho[i+j*Nz][i+j*Nz]=(rho[j]**2+z[i]**2)
+            b2rho[i+j*Nz][i+j*Nz]=rho[j]
+            b2z[i+j*Nz][i+j*Nz]=z[i]
+
+boundrho=np.matmul(b1rho,drho)+b2rho
+boundz=np.matmul(b1rho,dz)+b2z
+
+L=np.matmul(c1rho,drho)+np.matmul(c2rho,d2rho)+np.matmul(c2z,d2z)+cf
+
 q=np.zeros(Nrho*Nz)
 
 
